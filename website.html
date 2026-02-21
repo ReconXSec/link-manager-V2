@@ -1,0 +1,2310 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدير الروابط الذكي Pro - Link Manager Pro</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary-color: #ec4899;
+            --accent-color: #06b6d4;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --bg-color: #f8fafc;
+            --surface-color: #ffffff;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        .dark-mode {
+            --bg-color: #0f172a;
+            --surface-color: #1e293b;
+            --card-bg: rgba(30, 41, 59, 0.95);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #475569;
+            --glass-bg: rgba(30, 41, 59, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        /* Background Pattern */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+            transition: opacity 0.3s ease;
+        }
+
+        .bg-gradient-1 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .bg-gradient-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .bg-gradient-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .bg-gradient-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .bg-gradient-5 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+
+        .bg-dots {
+            background-image: radial-gradient(circle, var(--primary-color) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .bg-grid {
+            background-image: 
+                linear-gradient(var(--border-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .bg-circles {
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(6, 182, 212, 0.2) 0%, transparent 50%);
+        }
+
+        .custom-bg-image {
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* Content wrapper */
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+        }
+
+        /* Login Page */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: auto;
+        }
+
+        .login-bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(-45deg, #6366f1, #ec4899, #06b6d4, #10b981);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            z-index: 0;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .login-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 48px 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .login-icon {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 28px;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .login-icon i {
+            font-size: 48px;
+            color: white;
+        }
+
+        .login-title {
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 36px;
+            font-size: 15px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 16px 48px 16px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            font-size: 16px;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .input-group i {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-secondary {
+            background: var(--bg-color);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        /* Main App */
+        .app-container {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .app-header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .logo-icon i {
+            color: white;
+            font-size: 26px;
+        }
+
+        .logo-text h1 {
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .logo-text p {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 550px;
+            position: relative;
+            min-width: 250px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 48px 14px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 50px;
+            font-size: 15px;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .icon-btn {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            border: none;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .icon-btn:hover {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 28px 24px 40px;
+            overflow-y: visible;
+        }
+
+        /* Welcome Banner */
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 24px;
+            padding: 32px;
+            margin-bottom: 32px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .welcome-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-banner h2 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .welcome-banner p {
+            font-size: 15px;
+            opacity: 0.9;
+        }
+
+        .welcome-stats {
+            display: flex;
+            gap: 32px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .welcome-stat {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .welcome-stat i {
+            font-size: 28px;
+            opacity: 0.9;
+        }
+
+        .welcome-stat div {
+            text-align: right;
+        }
+
+        .welcome-stat .number {
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .welcome-stat .label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-color);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .stat-icon::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .stat-icon.links { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; }
+        .stat-icon.courses { background: linear-gradient(135deg, #ec4899, #f43f5e); color: white; }
+        .stat-icon.important { background: linear-gradient(135deg, #06b6d4, #0ea5e9); color: white; }
+        .stat-icon.tools { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; }
+        .stat-icon.articles { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: white; }
+        .stat-icon.visits { background: linear-gradient(135deg, #10b981, #34d399); color: white; }
+
+        .stat-info h3 {
+            font-size: 32px;
+            font-weight: 900;
+        }
+
+        .stat-info p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* View Toggle */
+        .view-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            max-width: 100%;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            border-radius: 50px;
+            border: 2px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 14px;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tab:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            background: var(--bg-color);
+            padding: 6px;
+            border-radius: 12px;
+            flex-shrink: 0;
+        }
+
+        .view-toggle button {
+            padding: 8px 12px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .view-toggle button.active {
+            background: var(--card-bg);
+            color: var(--primary-color);
+            box-shadow: var(--shadow);
+        }
+
+        .add-link-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .add-link-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Links Grid */
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            padding-bottom: 20px;
+        }
+
+        .links-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding-bottom: 20px;
+        }
+
+        .link-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .link-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .link-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 5px;
+            height: 100%;
+            z-index: 2;
+        }
+
+        .link-card.course::before { background: linear-gradient(180deg, var(--secondary-color), #f43f5e); }
+        .link-card.important::before { background: linear-gradient(180deg, var(--accent-color), #0ea5e9); }
+        .link-card.tool::before { background: linear-gradient(180deg, #8b5cf6, #a78bfa); }
+        .link-card.article::before { background: linear-gradient(180deg, #f59e0b, #fbbf24); }
+        .link-card.other::before { background: linear-gradient(180deg, var(--success-color), #34d399); }
+
+        .link-card-header {
+            position: relative;
+            height: 180px;
+            overflow: hidden;
+        }
+
+        .link-card-header img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .link-card-header .placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #e0e7ff, #f3e8ff);
+        }
+
+        .link-card-header .placeholder i {
+            font-size: 64px;
+            color: var(--primary-color);
+            opacity: 0.3;
+        }
+
+        .link-card-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.7) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .link-card:hover .link-card-overlay {
+            opacity: 1;
+        }
+
+        .link-card-actions-top {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            display: flex;
+            gap: 8px;
+            z-index: 3;
+        }
+
+        .action-btn-small {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255,255,255,0.95);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .action-btn-small:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .action-btn-small.favorited {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .link-card-category {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            backdrop-filter: blur(10px);
+            z-index: 3;
+        }
+
+        .link-card-category.course { background: rgba(236, 72, 153, 0.95); color: white; }
+        .link-card-category.important { background: rgba(6, 182, 212, 0.95); color: white; }
+        .link-card-category.tool { background: rgba(139, 92, 246, 0.95); color: white; }
+        .link-card-category.article { background: rgba(245, 158, 11, 0.95); color: white; }
+        .link-card-category.other { background: rgba(16, 185, 129, 0.95); color: white; }
+
+        .link-card-body {
+            padding: 24px;
+        }
+
+        .link-title {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .link-url {
+            color: var(--primary-color);
+            font-size: 13px;
+            margin-bottom: 12px;
+            word-break: break-all;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .link-url:hover {
+            text-decoration: underline;
+        }
+
+        .link-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .link-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .link-tag {
+            padding: 4px 12px;
+            background: var(--bg-color);
+            border-radius: 12px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .link-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            font-size: 12px;
+            color: var(--text-secondary);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .link-meta-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .link-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .visit-btn {
+            padding: 8px 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .visit-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        /* List View */
+        .link-card.list-view {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            gap: 20px;
+        }
+
+        .link-card.list-view .link-card-header {
+            width: 120px;
+            min-width: 120px;
+            height: 100px;
+            border-radius: 16px;
+        }
+
+        .link-card.list-view .link-card-body {
+            flex: 1;
+            padding: 0;
+            min-width: 0;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(8px);
+            overflow-y: auto;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            border-radius: 28px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: modalSlide 0.3s ease;
+            position: relative;
+            margin: 20px auto;
+        }
+
+        @keyframes modalSlide {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 28px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(236, 72, 153, 0.05));
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .modal-header h2 {
+            font-size: 26px;
+            font-weight: 800;
+        }
+
+        .modal-body {
+            padding: 28px;
+        }
+
+        .modal-body .form-group {
+            margin-bottom: 24px;
+        }
+
+        .modal-body label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .modal-body input,
+        .modal-body select,
+        .modal-body textarea {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid var(--border-color);
+            border-radius: 14px;
+            font-size: 15px;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .modal-body input:focus,
+        .modal-body select:focus,
+        .modal-body textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .image-upload-area {
+            border: 3px dashed var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--bg-color);
+        }
+
+        .image-upload-area:hover {
+            border-color: var(--primary-color);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .image-upload-area i {
+            font-size: 48px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .image-upload-area p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .image-preview {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-top: 16px;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .image-preview .remove-image {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-footer {
+            padding: 28px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .modal-footer .btn {
+            width: auto;
+            min-width: 120px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .empty-state i {
+            font-size: 100px;
+            color: var(--text-secondary);
+            opacity: 0.2;
+            margin-bottom: 28px;
+        }
+
+        .empty-state h3 {
+            font-size: 28px;
+            margin-bottom: 12px;
+            font-weight: 800;
+        }
+
+        .empty-state p {
+            color: var(--text-secondary);
+            margin-bottom: 28px;
+            font-size: 15px;
+        }
+
+        /* Background Settings Modal */
+        .bg-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .bg-option {
+            height: 80px;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bg-option:hover {
+            transform: scale(1.05);
+        }
+
+        .bg-option.active {
+            border-color: var(--primary-color);
+        }
+
+        .bg-option.active::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 32px;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--text-primary);
+            color: var(--bg-color);
+            padding: 16px 28px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            transition: transform 0.3s ease;
+            max-width: 90%;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                order: 3;
+                max-width: 100%;
+            }
+
+            .links-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .welcome-stats {
+                flex-wrap: wrap;
+            }
+
+            .view-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .tabs {
+                justify-content: center;
+            }
+
+            .modal {
+                margin: 10px;
+                max-height: 95vh;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-color);
+        }
+
+        /* Action buttons container */
+        .action-buttons-container {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Pattern -->
+    <div class="bg-pattern bg-circles" id="bgPattern"></div>
+
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <!-- Login Page -->
+        <div class="login-container" id="loginPage">
+            <div class="login-bg-animation"></div>
+            <div class="login-card">
+                <div class="login-icon">
+                    <i class="material-icons">lock</i>
+                </div>
+                <h2 class="login-title">مدير الروابط الذكي Pro</h2>
+                <p class="login-subtitle">منصة متكاملة لإدارة روابطك ومواردك التعليمية</p>
+                
+                <div id="firstTimeSetup" style="display: none;">
+                    <div style="background: var(--accent-color); color: white; padding: 16px; border-radius: 12px; margin-bottom: 24px;">
+                        <h3 style="margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="material-icons">info</i> إعداد أولي
+                        </h3>
+                        <p style="font-size: 14px;">أنشئ كلمة مرور جديدة للوصول للموقع</p>
+                    </div>
+                </div>
+
+                <div id="loginForm">
+                    <div class="input-group">
+                        <i class="material-icons">vpn_key</i>
+                        <input type="password" id="passwordInput" placeholder="كلمة المرور" autocomplete="off">
+                    </div>
+                    
+                    <div class="input-group" id="confirmPasswordGroup" style="display: none;">
+                        <i class="material-icons">lock</i>
+                        <input type="password" id="confirmPasswordInput" placeholder="تأكيد كلمة المرور">
+                    </div>
+
+                    <button class="btn btn-primary" onclick="handleLogin()">
+                        <i class="material-icons">login</i>
+                        <span id="loginBtnText">دخول</span>
+                    </button>
+
+                    <div id="attemptsWarning" style="background: var(--warning-color); color: white; padding: 14px; border-radius: 12px; margin-top: 20px; display: none; font-size: 14px;">
+                        <i class="material-icons" style="vertical-align: middle;">warning</i>
+                        <span id="attemptsText"></span>
+                    </div>
+
+                    <div id="lockedWarning" style="background: var(--danger-color); color: white; padding: 20px; border-radius: 12px; margin-top: 20px; display: none;">
+                        <i class="material-icons" style="font-size: 56px;">block</i>
+                        <h3 style="margin: 12px 0 8px;">الموقع مقفل مؤقتاً</h3>
+                        <p id="lockedTime" style="font-size: 14px;"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main App -->
+        <div class="app-container" id="appContainer">
+            <header class="app-header">
+                <div class="header-content">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <i class="material-icons">link</i>
+                        </div>
+                        <div class="logo-text">
+                            <h1>مدير الروابط</h1>
+                            <p>إدارة ذكية ومحمية</p>
+                        </div>
+                    </div>
+
+                    <div class="search-box">
+                        <i class="material-icons">search</i>
+                        <input type="text" id="searchInput" placeholder="ابحث عن روابط، IPs، عناوين، علامات..." oninput="handleSearch()">
+                    </div>
+
+                    <div class="header-actions">
+                        <button class="icon-btn" onclick="openBackgroundSettings()" title="تخصيص الخلفية">
+                            <i class="material-icons">palette</i>
+                        </button>
+                        <button class="icon-btn" onclick="toggleDarkMode()" title="تبديل الوضع">
+                            <i class="material-icons" id="themeIcon">dark_mode</i>
+                        </button>
+                        <button class="icon-btn" onclick="openSettings()" title="الإعدادات">
+                            <i class="material-icons">settings</i>
+                        </button>
+                        <button class="icon-btn" onclick="logout()" title="تسجيل الخروج">
+                            <i class="material-icons">logout</i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="main-content">
+                <!-- Welcome Banner -->
+                <div class="welcome-banner fade-in-up">
+                    <div class="welcome-content">
+                        <h2>مرحباً بك! 👋</h2>
+                        <p>إدارة روابطك ومواردك التعليمية بسهولة وأمان</p>
+                        <div class="welcome-stats">
+                            <div class="welcome-stat">
+                                <i class="material-icons">link</i>
+                                <div>
+                                    <div class="number" id="totalLinksBanner">0</div>
+                                    <div class="label">روابط</div>
+                                </div>
+                            </div>
+                            <div class="welcome-stat">
+                                <i class="material-icons">visibility</i>
+                                <div>
+                                    <div class="number" id="totalVisitsBanner">0</div>
+                                    <div class="label">زيارة</div>
+                                </div>
+                            </div>
+                            <div class="welcome-stat">
+                                <i class="material-icons">favorite</i>
+                                <div>
+                                    <div class="number" id="totalFavoritesBanner">0</div>
+                                    <div class="label">مفضلة</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card fade-in-up" style="animation-delay: 0.1s">
+                        <div class="stat-icon links">
+                            <i class="material-icons">link</i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalLinks">0</h3>
+                            <p>إجمالي الروابط</p>
+                        </div>
+                    </div>
+                    <div class="stat-card fade-in-up" style="animation-delay: 0.2s">
+                        <div class="stat-icon courses">
+                            <i class="material-icons">school</i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalCourses">0</h3>
+                            <p>كورسات تعليمية</p>
+                        </div>
+                    </div>
+                    <div class="stat-card fade-in-up" style="animation-delay: 0.3s">
+                        <div class="stat-icon tools">
+                            <i class="material-icons">build</i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalTools">0</h3>
+                            <p>أدوات مهمة</p>
+                        </div>
+                    </div>
+                    <div class="stat-card fade-in-up" style="animation-delay: 0.4s">
+                        <div class="stat-icon articles">
+                            <i class="material-icons">article</i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalArticles">0</h3>
+                            <p>مقالات</p>
+                        </div>
+                    </div>
+                    <div class="stat-card fade-in-up" style="animation-delay: 0.5s">
+                        <div class="stat-icon visits">
+                            <i class="material-icons">visibility</i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalVisits">0</h3>
+                            <p>إجمالي الزيارات</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- View Controls -->
+                <div class="view-controls">
+                    <div class="tabs">
+                        <button class="tab active" onclick="filterByCategory('all')">
+                            <i class="material-icons">apps</i>
+                            الكل
+                        </button>
+                        <button class="tab" onclick="filterByCategory('course')">
+                            <i class="material-icons">school</i>
+                            كورسات
+                        </button>
+                        <button class="tab" onclick="filterByCategory('tool')">
+                            <i class="material-icons">build</i>
+                            أدوات
+                        </button>
+                        <button class="tab" onclick="filterByCategory('article')">
+                            <i class="material-icons">article</i>
+                            مقالات
+                        </button>
+                        <button class="tab" onclick="filterByCategory('important')">
+                            <i class="material-icons">star</i>
+                            مهمة
+                        </button>
+                        <button class="tab" onclick="filterByCategory('favorite')">
+                            <i class="material-icons">favorite</i>
+                            المفضلة
+                        </button>
+                        <button class="tab" onclick="filterByCategory('other')">
+                            <i class="material-icons">folder</i>
+                            أخرى
+                        </button>
+                    </div>
+
+                    <div class="action-buttons-container">
+                        <div class="view-toggle">
+                            <button id="gridViewBtn" class="active" onclick="setView('grid')">
+                                <i class="material-icons">grid_view</i>
+                            </button>
+                            <button id="listViewBtn" onclick="setView('list')">
+                                <i class="material-icons">view_list</i>
+                            </button>
+                        </div>
+                        <button class="add-link-btn" onclick="openAddModal()">
+                            <i class="material-icons">add</i>
+                            إضافة رابط
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Links Grid -->
+                <div class="links-grid" id="linksGrid"></div>
+
+                <!-- Empty State -->
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <i class="material-icons">folder_open</i>
+                    <h3>لا توجد روابط محفوظة</h3>
+                    <p>ابدأ بإضافة روابطك المفضلة وكورساتك التعليمية</p>
+                    <button class="add-link-btn" onclick="openAddModal()">
+                        <i class="material-icons">add</i>
+                        إضافة أول رابط
+                    </button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" id="addModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">إضافة رابط جديد</h2>
+                <button class="icon-btn" onclick="closeAddModal()" style="width: 46px; height: 46px; flex-shrink: 0;">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>العنوان *</label>
+                    <input type="text" id="linkTitle" placeholder="مثال: كورس React.js الكامل">
+                </div>
+                <div class="form-group">
+                    <label>الرابط / IP / العنوان *</label>
+                    <input type="text" id="linkUrl" placeholder="https://example.com أو 192.168.1.1">
+                </div>
+                <div class="form-group">
+                    <label>صورة الغلاف (اختياري)</label>
+                    <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                    <div class="image-upload-area" onclick="document.getElementById('imageInput').click()">
+                        <i class="material-icons">add_photo_alternate</i>
+                        <p>اضغط لإضافة صورة أو اسحب الملف هنا</p>
+                        <p style="font-size: 12px; margin-top: 4px;">PNG, JPG, GIF</p>
+                    </div>
+                    <div class="image-preview" id="imagePreview" style="display: none;">
+                        <img id="previewImg" src="" alt="Preview">
+                        <button class="remove-image" onclick="removeImage()">
+                            <i class="material-icons">close</i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>الوصف</label>
+                    <textarea id="linkDescription" rows="3" placeholder="وصف مختصر للرابط..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>التصنيف *</label>
+                    <select id="linkCategory">
+                        <option value="course">🎓 كورس تعليمي</option>
+                        <option value="tool">🔧 أداة مهمة</option>
+                        <option value="article">📄 مقال</option>
+                        <option value="important">⭐ موقع مهم</option>
+                        <option value="other">📁 أخرى</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>العلامات (Tags) - مفصولة بفواصل</label>
+                    <input type="text" id="linkTags" placeholder="react, javascript, frontend">
+                </div>
+                <div class="form-group">
+                    <label>ملاحظات خاصة</label>
+                    <textarea id="linkNotes" rows="2" placeholder="ملاحظاتك الخاصة..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAddModal()">إلغاء</button>
+                <button class="btn btn-primary" onclick="saveLink()">
+                    <i class="material-icons">save</i>
+                    حفظ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Settings Modal -->
+    <div class="modal-overlay" id="backgroundModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>تخصيص الخلفية</h2>
+                <button class="icon-btn" onclick="closeBackgroundSettings()" style="width: 46px; height: 46px; flex-shrink: 0;">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label>اختر خلفية:</label>
+                <div class="bg-options">
+                    <div class="bg-option active" onclick="setBackground('bg-circles')" style="background: radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.2) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.2) 0%, transparent 50%);"></div>
+                    <div class="bg-option" onclick="setBackground('bg-gradient-1')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                    <div class="bg-option" onclick="setBackground('bg-gradient-2')" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div>
+                    <div class="bg-option" onclick="setBackground('bg-gradient-3')" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"></div>
+                    <div class="bg-option" onclick="setBackground('bg-gradient-4')" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);"></div>
+                    <div class="bg-option" onclick="setBackground('bg-gradient-5')" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);"></div>
+                    <div class="bg-option" onclick="setBackground('bg-dots')" style="background-image: radial-gradient(circle, #6366f1 1px, transparent 1px); background-size: 10px 10px;"></div>
+                    <div class="bg-option" onclick="setBackground('bg-grid')" style="background-image: linear-gradient(#e0e7ff 1px, transparent 1px), linear-gradient(90deg, #e0e7ff 1px, transparent 1px); background-size: 15px 15px;"></div>
+                </div>
+                
+                <div class="form-group" style="margin-top: 24px;">
+                    <label>أو ارفع صورة كخلفية:</label>
+                    <input type="file" id="bgImageInput" accept="image/*" style="display: none;" onchange="handleBgImageUpload(event)">
+                    <button class="btn btn-secondary" onclick="document.getElementById('bgImageInput').click()" style="width: 100%;">
+                        <i class="material-icons">image</i>
+                        رفع صورة كخلفية
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <label>شفافية الخلفية: <span id="opacityValue">40%</span></label>
+                    <input type="range" id="bgOpacity" min="0" max="100" value="40" oninput="updateBgOpacity()" style="width: 100%;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>الإعدادات</h2>
+                <button class="icon-btn" onclick="closeSettings()" style="width: 46px; height: 46px; flex-shrink: 0;">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>📊 تصدير البيانات</label>
+                    <button class="btn btn-secondary" onclick="exportData()" style="width: 100%; margin-top: 8px;">
+                        <i class="material-icons">download</i>
+                        تصدير إلى ملف JSON
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label>📥 استيراد البيانات</label>
+                    <input type="file" id="importFile" accept=".json" onchange="importData(event)" style="display: none;">
+                    <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()" style="width: 100%; margin-top: 8px;">
+                        <i class="material-icons">upload</i>
+                        استيراد من ملف JSON
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label>🔑 تغيير كلمة المرور</label>
+                    <input type="password" id="newPassword" placeholder="كلمة المرور الجديدة" style="margin-top: 8px;">
+                    <input type="password" id="confirmNewPassword" placeholder="تأكيد كلمة المرور الجديدة" style="margin-top: 12px;">
+                    <button class="btn btn-primary" onclick="changePassword()" style="width: 100%; margin-top: 12px;">
+                        <i class="material-icons">vpn_key</i>
+                        تغيير كلمة المرور
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label>🗑️ مسح البيانات</label>
+                    <button class="btn" onclick="clearAllData()" style="width: 100%; background: var(--danger-color); color: white; border: none; margin-top: 8px;">
+                        <i class="material-icons">delete_forever</i>
+                        مسح جميع البيانات
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code Modal -->
+    <div class="modal-overlay" id="qrModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>رمز QR</h2>
+                <button class="icon-btn" onclick="closeQRModal()" style="width: 46px; height: 46px; flex-shrink: 0;">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <p id="qrLinkUrl" style="margin-bottom: 20px; color: var(--text-secondary); word-break: break-all;"></p>
+                <div style="background: white; padding: 24px; border-radius: 16px; display: inline-block; margin: 20px 0;">
+                    <canvas id="qrCanvas"></canvas>
+                </div>
+                <button class="btn btn-primary" onclick="downloadQR()" style="width: auto; margin-top: 20px;">
+                    <i class="material-icons">download</i>
+                    تحميل QR
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <i class="material-icons">check_circle</i>
+        <span id="toastMessage"></span>
+    </div>
+
+    <script>
+        // App State
+        let links = [];
+        let currentFilter = 'all';
+        let currentEditId = null;
+        let isFirstTime = false;
+        let currentView = 'grid';
+        let currentImage = null;
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            checkLockStatus();
+            checkFirstTime();
+            loadTheme();
+            loadLinks();
+            loadBackground();
+        });
+
+        // Check if first time setup
+        function checkFirstTime() {
+            const storedPassword = localStorage.getItem('appPassword');
+            if (!storedPassword) {
+                isFirstTime = true;
+                document.getElementById('firstTimeSetup').style.display = 'block';
+                document.getElementById('confirmPasswordGroup').style.display = 'block';
+                document.getElementById('loginBtnText').textContent = 'إنشاء حساب';
+            }
+        }
+
+        // Handle Login
+        function handleLogin() {
+            const password = document.getElementById('passwordInput').value;
+            const confirmPassword = document.getElementById('confirmPasswordInput').value;
+
+            if (isFirstTime) {
+                if (password.length < 4) {
+                    showToast('كلمة المرور يجب أن تكون 4 أحرف على الأقل');
+                    return;
+                }
+                if (password !== confirmPassword) {
+                    showToast('كلمات المرور غير متطابقة');
+                    return;
+                }
+                localStorage.setItem('appPassword', btoa(password));
+                showToast('تم إنشاء كلمة المرور بنجاح');
+                showApp();
+            } else {
+                const storedPassword = atob(localStorage.getItem('appPassword'));
+                const attempts = parseInt(localStorage.getItem('loginAttempts') || '0');
+                const lockedUntil = localStorage.getItem('lockedUntil');
+
+                if (lockedUntil) {
+                    const lockDate = new Date(lockedUntil);
+                    if (new Date() < lockDate) {
+                        showLockedState(lockDate);
+                        return;
+                    } else {
+                        localStorage.removeItem('lockedUntil');
+                        localStorage.setItem('loginAttempts', '0');
+                    }
+                }
+
+                if (password === storedPassword) {
+                    localStorage.setItem('loginAttempts', '0');
+                    showApp();
+                } else {
+                    const newAttempts = attempts + 1;
+                    localStorage.setItem('loginAttempts', newAttempts.toString());
+                    
+                    if (newAttempts >= 8) {
+                        const lockDate = new Date();
+                        lockDate.setMonth(lockDate.getMonth() + 1);
+                        localStorage.setItem('lockedUntil', lockDate.toISOString());
+                        showLockedState(lockDate);
+                    } else {
+                        document.getElementById('attemptsWarning').style.display = 'block';
+                        document.getElementById('attemptsText').textContent = 
+                            `⚠️ باقي ${8 - newAttempts} محاولات قبل قفل الموقع لشهر كامل`;
+                        showToast('كلمة المرور غير صحيحة');
+                    }
+                }
+            }
+        }
+
+        // Show locked state
+        function showLockedState(lockDate) {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('lockedWarning').style.display = 'block';
+            const remaining = Math.ceil((lockDate - new Date()) / (1000 * 60 * 60 * 24));
+            document.getElementById('lockedTime').textContent = 
+                `سيتم إلغاء القفل بعد ${remaining} يوم`;
+        }
+
+        // Check lock status on load
+        function checkLockStatus() {
+            const lockedUntil = localStorage.getItem('lockedUntil');
+            if (lockedUntil) {
+                const lockDate = new Date(lockedUntil);
+                if (new Date() < lockDate) {
+                    showLockedState(lockDate);
+                } else {
+                    localStorage.removeItem('lockedUntil');
+                    localStorage.setItem('loginAttempts', '0');
+                }
+            }
+        }
+
+        // Show main app
+        function showApp() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+            renderLinks();
+        }
+
+        // Logout
+        function logout() {
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('appContainer').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'flex';
+            isFirstTime = false;
+            document.getElementById('firstTimeSetup').style.display = 'none';
+            document.getElementById('confirmPasswordGroup').style.display = 'none';
+            document.getElementById('loginBtnText').textContent = 'دخول';
+            document.getElementById('attemptsWarning').style.display = 'none';
+            document.getElementById('lockedWarning').style.display = 'none';
+        }
+
+        // Load Links
+        function loadLinks() {
+            const stored = localStorage.getItem('links');
+            if (stored) {
+                links = JSON.parse(stored);
+            }
+        }
+
+        // Save Links
+        function saveLinks() {
+            localStorage.setItem('links', JSON.stringify(links));
+        }
+
+        // Render Links
+        function renderLinks(filteredLinks = null) {
+            const grid = document.getElementById('linksGrid');
+            const emptyState = document.getElementById('emptyState');
+            const displayLinks = filteredLinks || links;
+
+            // Update stats
+            const totalLinks = links.length;
+            const totalCourses = links.filter(l => l.category === 'course').length;
+            const totalTools = links.filter(l => l.category === 'tool').length;
+            const totalArticles = links.filter(l => l.category === 'article').length;
+            const totalImportant = links.filter(l => l.category === 'important').length;
+            const totalFavorites = links.filter(l => l.favorite).length;
+            const totalVisits = links.reduce((sum, l) => sum + (l.visits || 0), 0);
+
+            document.getElementById('totalLinks').textContent = totalLinks;
+            document.getElementById('totalCourses').textContent = totalCourses;
+            document.getElementById('totalTools').textContent = totalTools;
+            document.getElementById('totalArticles').textContent = totalArticles;
+            document.getElementById('totalVisits').textContent = totalVisits;
+            document.getElementById('totalLinksBanner').textContent = totalLinks;
+            document.getElementById('totalVisitsBanner').textContent = totalVisits;
+            document.getElementById('totalFavoritesBanner').textContent = totalFavorites;
+
+            if (displayLinks.length === 0) {
+                grid.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            const viewClass = currentView === 'list' ? 'list-view' : '';
+            grid.className = currentView === 'list' ? 'links-list' : 'links-grid';
+
+            grid.innerHTML = displayLinks.map((link, index) => `
+                <div class="link-card ${link.category} ${viewClass} fade-in-up" style="animation-delay: ${index * 0.05}s">
+                    <div class="link-card-header">
+                        ${link.image ? 
+                            `<img src="${link.image}" alt="${link.title}">` :
+                            `<div class="placeholder"><i class="material-icons">${getCategoryIcon(link.category)}</i></div>`
+                        }
+                        <div class="link-card-overlay"></div>
+                        <div class="link-card-actions-top">
+                            <button class="action-btn-small ${link.favorite ? 'favorited' : ''}" onclick="toggleFavorite('${link.id}')" title="مفضلة">
+                                <i class="material-icons">${link.favorite ? 'favorite' : 'favorite_border'}</i>
+                            </button>
+                            <button class="action-btn-small" onclick="openQRModal('${link.url}')" title="QR Code">
+                                <i class="material-icons">qr_code</i>
+                            </button>
+                        </div>
+                        <span class="link-card-category ${link.category}">${getCategoryName(link.category)}</span>
+                    </div>
+                    <div class="link-card-body">
+                        <h3 class="link-title">${link.title}</h3>
+                        <div class="link-url" onclick="copyLink('${link.url}')">
+                            <i class="material-icons" style="font-size: 16px;">link</i>
+                            ${link.url}
+                        </div>
+                        ${link.description ? `<p class="link-description">${link.description}</p>` : ''}
+                        ${link.tags && link.tags.length > 0 ? `
+                            <div class="link-tags">
+                                ${link.tags.slice(0, 3).map(tag => `<span class="link-tag">${tag}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                        <div class="link-meta">
+                            <div class="link-meta-left">
+                                <span>
+                                    <i class="material-icons" style="font-size: 16px;">visibility</i>
+                                    ${link.visits || 0}
+                                </span>
+                                <span>
+                                    <i class="material-icons" style="font-size: 16px;">access_time</i>
+                                    ${formatDate(link.createdAt)}
+                                </span>
+                            </div>
+                            <button class="visit-btn" onclick="visitLink('${link.id}', '${link.url}')">
+                                زيارة
+                                <i class="material-icons" style="font-size: 16px; margin-right: 4px;">open_in_new</i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Get category icon
+        function getCategoryIcon(category) {
+            const icons = {
+                'course': 'school',
+                'tool': 'build',
+                'article': 'article',
+                'important': 'star',
+                'other': 'folder'
+            };
+            return icons[category] || 'link';
+        }
+
+        // Get category name
+        function getCategoryName(category) {
+            const names = {
+                'course': 'كورس تعليمي',
+                'tool': 'أداة مهمة',
+                'article': 'مقال',
+                'important': 'موقع مهم',
+                'other': 'أخرى'
+            };
+            return names[category] || category;
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ar-SA', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        // Filter by category
+        function filterByCategory(category) {
+            currentFilter = category;
+            
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.closest('.tab').classList.add('active');
+
+            if (category === 'all') {
+                renderLinks();
+            } else if (category === 'favorite') {
+                const filtered = links.filter(link => link.favorite);
+                renderLinks(filtered);
+            } else {
+                const filtered = links.filter(link => link.category === category);
+                renderLinks(filtered);
+            }
+        }
+
+        // Search
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (!query) {
+                renderLinks();
+                return;
+            }
+
+            const filtered = links.filter(link => 
+                link.title.toLowerCase().includes(query) ||
+                link.url.toLowerCase().includes(query) ||
+                (link.description && link.description.toLowerCase().includes(query)) ||
+                (link.tags && link.tags.some(tag => tag.toLowerCase().includes(query)))
+            );
+
+            renderLinks(filtered);
+        }
+
+        // Set View
+        function setView(view) {
+            currentView = view;
+            document.getElementById('gridViewBtn').classList.toggle('active', view === 'grid');
+            document.getElementById('listViewBtn').classList.toggle('active', view === 'list');
+            renderLinks();
+        }
+
+        // Toggle Favorite
+        function toggleFavorite(id) {
+            const index = links.findIndex(l => l.id === id);
+            if (index !== -1) {
+                links[index].favorite = !links[index].favorite;
+                saveLinks();
+                renderLinks();
+                showToast(links[index].favorite ? 'تمت الإضافة للمفضلة' : 'تمت الإزالة من المفضلة');
+            }
+        }
+
+        // Visit Link
+        function visitLink(id, url) {
+            const index = links.findIndex(l => l.id === id);
+            if (index !== -1) {
+                links[index].visits = (links[index].visits || 0) + 1;
+                links[index].lastVisited = new Date().toISOString();
+                saveLinks();
+                window.open(url, '_blank');
+            }
+        }
+
+        // Open Add Modal
+        function openAddModal() {
+            currentEditId = null;
+            currentImage = null;
+            document.getElementById('modalTitle').textContent = 'إضافة رابط جديد';
+            document.getElementById('linkTitle').value = '';
+            document.getElementById('linkUrl').value = '';
+            document.getElementById('linkDescription').value = '';
+            document.getElementById('linkCategory').value = 'course';
+            document.getElementById('linkTags').value = '';
+            document.getElementById('linkNotes').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('addModal').style.display = 'flex';
+        }
+
+        // Close Add Modal
+        function closeAddModal() {
+            document.getElementById('addModal').style.display = 'none';
+        }
+
+        // Handle Image Upload
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                currentImage = e.target.result;
+                document.getElementById('previewImg').src = currentImage;
+                document.getElementById('imagePreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Remove Image
+        function removeImage() {
+            currentImage = null;
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('imageInput').value = '';
+        }
+
+        // Save Link
+        function saveLink() {
+            const title = document.getElementById('linkTitle').value.trim();
+            const url = document.getElementById('linkUrl').value.trim();
+            const description = document.getElementById('linkDescription').value.trim();
+            const category = document.getElementById('linkCategory').value;
+            const tagsInput = document.getElementById('linkTags').value.trim();
+            const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()) : [];
+            const notes = document.getElementById('linkNotes').value.trim();
+
+            if (!title || !url) {
+                showToast('يرجى ملء الحقول المطلوبة');
+                return;
+            }
+
+            if (currentEditId) {
+                const index = links.findIndex(l => l.id === currentEditId);
+                if (index !== -1) {
+                    links[index] = {
+                        ...links[index],
+                        title,
+                        url,
+                        description,
+                        category,
+                        tags,
+                        notes,
+                        image: currentImage || links[index].image,
+                        updatedAt: new Date().toISOString()
+                    };
+                }
+                showToast('تم تحديث الرابط بنجاح');
+            } else {
+                const newLink = {
+                    id: Date.now().toString(),
+                    title,
+                    url,
+                    description,
+                    category,
+                    tags,
+                    notes,
+                    image: currentImage,
+                    favorite: false,
+                    visits: 0,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                links.unshift(newLink);
+                showToast('تم إضافة الرابط بنجاح');
+            }
+
+            saveLinks();
+            renderLinks();
+            closeAddModal();
+        }
+
+        // Copy Link
+        function copyLink(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                showToast('تم نسخ الرابط');
+            });
+        }
+
+        // QR Code
+        function openQRModal(url) {
+            document.getElementById('qrLinkUrl').textContent = url;
+            document.getElementById('qrModal').style.display = 'flex';
+            generateQR(url);
+        }
+
+        function closeQRModal() {
+            document.getElementById('qrModal').style.display = 'none';
+        }
+
+        function generateQR(text) {
+            const canvas = document.getElementById('qrCanvas');
+            const ctx = canvas.getContext('2d');
+            const size = 200;
+            canvas.width = size;
+            canvas.height = size;
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, size, size);
+            
+            ctx.fillStyle = '#000000';
+            const cellSize = size / 25;
+            
+            for (let i = 0; i < 25; i++) {
+                for (let j = 0; j < 25; j++) {
+                    if (Math.random() > 0.5 || (i < 7 && j < 7) || (i < 7 && j > 17) || (i > 17 && j < 7)) {
+                        ctx.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
+                    }
+                }
+            }
+            
+            drawPositionMarker(ctx, 0, 0, cellSize);
+            drawPositionMarker(ctx, 18 * cellSize, 0, cellSize);
+            drawPositionMarker(ctx, 0, 18 * cellSize, cellSize);
+        }
+
+        function drawPositionMarker(ctx, x, y, cellSize) {
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(x, y, 7 * cellSize, 7 * cellSize);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(x + cellSize, y + cellSize, 5 * cellSize, 5 * cellSize);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(x + 2 * cellSize, y + 2 * cellSize, 3 * cellSize, 3 * cellSize);
+        }
+
+        function downloadQR() {
+            const canvas = document.getElementById('qrCanvas');
+            const link = document.createElement('a');
+            link.download = 'qr-code.png';
+            link.href = canvas.toDataURL();
+            link.click();
+            showToast('تم تحميل رمز QR');
+        }
+
+        // Background Settings
+        function openBackgroundSettings() {
+            document.getElementById('backgroundModal').style.display = 'flex';
+        }
+
+        function closeBackgroundSettings() {
+            document.getElementById('backgroundModal').style.display = 'none';
+        }
+
+        function setBackground(bgClass) {
+            const bgPattern = document.getElementById('bgPattern');
+            const body = document.body;
+            
+            body.style.backgroundImage = '';
+            body.classList.remove('custom-bg-image');
+            
+            bgPattern.className = 'bg-pattern ' + bgClass;
+            
+            localStorage.setItem('backgroundClass', bgClass);
+            localStorage.removeItem('customBgImage');
+            
+            document.querySelectorAll('.bg-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            showToast('تم تغيير الخلفية');
+        }
+
+        function handleBgImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const bgPattern = document.getElementById('bgPattern');
+                const body = document.body;
+                
+                body.style.backgroundImage = `url(${e.target.result})`;
+                body.classList.add('custom-bg-image');
+                bgPattern.className = 'bg-pattern';
+                
+                localStorage.setItem('customBgImage', e.target.result);
+                localStorage.setItem('backgroundClass', 'custom');
+                
+                showToast('تم تغيير الخلفية بنجاح');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function updateBgOpacity() {
+            const opacity = document.getElementById('bgOpacity').value / 100;
+            document.getElementById('bgPattern').style.opacity = opacity;
+            localStorage.setItem('bgOpacity', opacity.toString());
+            document.getElementById('opacityValue').textContent = Math.round(opacity * 100) + '%';
+        }
+
+        // Load background
+        function loadBackground() {
+            const bgClass = localStorage.getItem('backgroundClass');
+            const customBg = localStorage.getItem('customBgImage');
+            const bgOpacity = localStorage.getItem('bgOpacity');
+
+            if (bgOpacity) {
+                const opacity = parseFloat(bgOpacity);
+                document.getElementById('bgPattern').style.opacity = opacity;
+                document.getElementById('bgOpacity').value = Math.round(opacity * 100);
+                document.getElementById('opacityValue').textContent = Math.round(opacity * 100) + '%';
+            }
+
+            if (customBg && bgClass === 'custom') {
+                document.body.style.backgroundImage = `url(${customBg})`;
+                document.body.classList.add('custom-bg-image');
+                document.getElementById('bgPattern').className = 'bg-pattern';
+            } else if (bgClass) {
+                document.getElementById('bgPattern').className = 'bg-pattern ' + bgClass;
+                document.body.style.backgroundImage = '';
+                document.body.classList.remove('custom-bg-image');
+            }
+        }
+
+        // Dark Mode
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark.toString());
+            document.getElementById('themeIcon').textContent = isDark ? 'light_mode' : 'dark_mode';
+        }
+
+        function loadTheme() {
+            const isDark = localStorage.getItem('darkMode') === 'true';
+            if (isDark) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeIcon').textContent = 'light_mode';
+            }
+        }
+
+        // Settings
+        function openSettings() {
+            document.getElementById('settingsModal').style.display = 'flex';
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+
+        function exportData() {
+            const data = {
+                links,
+                exportedAt: new Date().toISOString(),
+                version: '3.0'
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `links-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('تم تصدير البيانات بنجاح');
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.links) {
+                        if (confirm(`سيتم استيراد ${data.links.length} رابط. هل تريد الاستبدال أو الإضافة؟\n\nاضغط OK للاستبدال\nاضغط Cancel للإضافة`)) {
+                            links = data.links;
+                        } else {
+                            links = [...links, ...data.links];
+                        }
+                        saveLinks();
+                        renderLinks();
+                        showToast('تم استيراد البيانات بنجاح');
+                    }
+                } catch (error) {
+                    showToast('خطأ في قراءة الملف');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function changePassword() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmNewPassword').value;
+
+            if (newPassword.length < 4) {
+                showToast('كلمة المرور يجب أن تكون 4 أحرف على الأقل');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                showToast('كلمات المرور غير متطابقة');
+                return;
+            }
+
+            localStorage.setItem('appPassword', btoa(newPassword));
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmNewPassword').value = '';
+            showToast('تم تغيير كلمة المرور بنجاح');
+        }
+
+        function clearAllData() {
+            if (confirm('هل أنت متأكد؟ سيتم حذف جميع البيانات نهائياً!')) {
+                if (confirm('هذا الإجراء لا يمكن التراجع عنه!')) {
+                    links = [];
+                    saveLinks();
+                    renderLinks();
+                    showToast('تم مسح جميع البيانات');
+                }
+            }
+        }
+
+        // Show Toast
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Handle Enter key
+        document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleLogin();
+            }
+        });
+
+        document.getElementById('confirmPasswordInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleLogin();
+            }
+        });
+    </script>
+</body>
+</html>
