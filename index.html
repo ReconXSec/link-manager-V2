@@ -4,12 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nexus — مدير الروابط</title>
-  
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  
-  <!-- Style -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -42,6 +38,10 @@
           <button class="login-btn" id="login-btn" onclick="doLogin()">
             <span id="login-btn-text">دخول ←</span>
           </button>
+          <!-- زر Google -->
+          <button class="login-btn google-btn" onclick="signInWithGoogle()" style="margin-top:12px; background: #4285F4; box-shadow: 0 8px 32px rgba(66,133,244,0.4);">
+            <span>🔵 تسجيل الدخول ب Google</span>
+          </button>
           <div class="attempts-bar" id="attempts-bar"></div>
           <div class="login-error" id="login-error"></div>
           <div class="locked-state" id="locked-state">
@@ -69,6 +69,7 @@
           <input type="text" id="search-inp" placeholder="ابحث عن روابط، IPs، عناوين، وسوم..." oninput="handleSearch()" dir="rtl">
         </div>
         <div class="h-actions">
+          <span id="user-name" style="color:var(--fg2); font-size:14px; margin-left:8px;"></span>
           <button class="h-btn" onclick="openSettingsModal()" title="الإعدادات">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
           </button>
@@ -302,7 +303,76 @@
     <span id="toast-msg"></span>
   </div>
 
-  <!-- Script -->
+  <!-- Scripts -->
   <script src="script.js" defer></script>
+
+  <!-- Firebase Module -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDBg0nUi77lCqaWMeMEaa_2fqLZqI3Gx64",
+      authDomain: "link-manger-d246a.firebaseapp.com",
+      projectId: "link-manger-d246a",
+      storageBucket: "link-manger-d246a.firebasestorage.app",
+      messagingSenderId: "536882965120",
+      appId: "1:536882965120:web:1ba31c08240530f3829465",
+      measurementId: "G-WWVV92JBJW"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    // Make auth and signOut available globally
+    window.auth = auth;
+    window.signOut = signOut;
+
+    // تسجيل الدخول ب Google
+    window.signInWithGoogle = function() {
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          // user signed in
+          if (typeof enterApp === 'function') {
+            enterApp();
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+          if (typeof showToast === 'function') {
+            showToast('❌ فشل تسجيل الدخول ب Google', 'error');
+          }
+        });
+    };
+
+    // مراقبة حالة المصادقة
+    onAuthStateChanged(auth, (user) => {
+      const userNameEl = document.getElementById('user-name');
+      if (user) {
+        // عرض اسم المستخدم
+        if (userNameEl) {
+          userNameEl.textContent = user.displayName || 'مستخدم';
+        }
+        // إذا كانت صفحة الدخول ظاهرة ولم يكن التطبيق ظاهراً، ندخل التطبيق
+        const loginPage = document.getElementById('login-page');
+        const appEl = document.getElementById('app');
+        if (loginPage && loginPage.style.display !== 'none' && appEl && appEl.style.display === 'none') {
+          if (typeof enterApp === 'function') {
+            enterApp();
+          }
+        }
+      } else {
+        if (userNameEl) userNameEl.textContent = '';
+        // إذا كان التطبيق ظاهراً ولم يكن المستخدم مسجلاً، نعود لصفحة الدخول
+        const appEl = document.getElementById('app');
+        if (appEl && appEl.style.display !== 'none') {
+          if (typeof doLogout === 'function') {
+            doLogout(); // هذه الدالة ستخفي التطبيق وتظهر الدخول
+          }
+        }
+      }
+    });
+  </script>
 </body>
 </html>
