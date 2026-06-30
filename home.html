@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nexus — مدير الروابط</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Style -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- ══════════════════════ LOGIN ══════════════════════ -->
+  <div id="login-page">
+    <div class="login-wrap">
+      <div class="login-glow"></div>
+      <div class="login-card">
+        <div class="login-logo">
+          <div class="login-logo-icon">⚡</div>
+          <div class="login-logo-text">NEXUS</div>
+        </div>
+        <p class="login-subtitle">مدير الروابط الذكي — احفظ كورساتك، أدواتك،<br>IPs ومواردك في مكان واحد آمن</p>
+        <div class="setup-badge" id="setup-badge">✨ إعداد أولي — أنشئ كلمة مرورك الخاصة</div>
+        <div id="login-form">
+          <label class="field-label">كلمة المرور</label>
+          <div class="field-wrap">
+            <input class="field-input" id="pw-inp" type="password" placeholder="أدخل كلمة المرور..." autocomplete="off">
+            <span class="field-icon">🔑</span>
+          </div>
+          <div id="confirm-row" style="display:none">
+            <label class="field-label">تأكيد كلمة المرور</label>
+            <div class="field-wrap">
+              <input class="field-input" id="pw-confirm" type="password" placeholder="أعد الإدخال..." autocomplete="off">
+              <span class="field-icon">🔒</span>
+            </div>
+          </div>
+          <button class="login-btn" id="login-btn" onclick="doLogin()">
+            <span id="login-btn-text">دخول ←</span>
+          </button>
+          <div class="attempts-bar" id="attempts-bar"></div>
+          <div class="login-error" id="login-error"></div>
+          <div class="locked-state" id="locked-state">
+            <div class="lock-icon">🔒</div>
+            <h3>الوصول مقفل مؤقتاً</h3>
+            <p id="locked-text"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ APP ══════════════════════ -->
+  <div id="app">
+    <header class="app-header">
+      <div class="header-inner">
+        <div class="h-logo">
+          <div class="h-logo-icon">⚡</div>
+          <div class="h-logo-name">NEXUS</div>
+        </div>
+        <div class="h-search">
+          <span class="h-search-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </span>
+          <input type="text" id="search-inp" placeholder="ابحث عن روابط، IPs، عناوين، وسوم..." oninput="handleSearch()" dir="rtl">
+        </div>
+        <div class="h-actions">
+          <button class="h-btn" onclick="openSettingsModal()" title="الإعدادات">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          </button>
+          <button class="h-btn" onclick="doLogout()" title="خروج">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </button>
+          <button class="h-btn-add" onclick="openAddModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            إضافة رابط
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <!-- Hero Banner -->
+      <div class="hero-banner">
+        <div class="hero-content">
+          <h1 class="hero-title">مرحباً، <span id="hero-greeting">مرحباً بك! 👋</span></h1>
+          <p class="hero-desc">كل مواردك في مكان واحد — منظمة، محمية، وسهلة الوصول</p>
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <div class="hs-val" id="hs-total">0</div>
+              <div class="hs-lbl">رابط</div>
+            </div>
+            <div class="hero-stat-div"></div>
+            <div class="hero-stat">
+              <div class="hs-val" id="hs-visits">0</div>
+              <div class="hs-lbl">زيارة</div>
+            </div>
+            <div class="hero-stat-div"></div>
+            <div class="hero-stat">
+              <div class="hs-val" id="hs-favs">0</div>
+              <div class="hs-lbl">مفضلة</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats / Filter Cards -->
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card active-filter" onclick="filterCat('all',this)">
+          <div class="stat-ico all"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+          <div class="stat-info"><h3 id="sc-all">0</h3><p>الكل</p></div>
+        </div>
+        <div class="stat-card" onclick="filterCat('course',this)">
+          <div class="stat-ico course"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
+          <div class="stat-info"><h3 id="sc-course">0</h3><p>كورسات</p></div>
+        </div>
+        <div class="stat-card" onclick="filterCat('tool',this)">
+          <div class="stat-ico tool"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+          <div class="stat-info"><h3 id="sc-tool">0</h3><p>أدوات</p></div>
+        </div>
+        <div class="stat-card" onclick="filterCat('article',this)">
+          <div class="stat-ico article"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+          <div class="stat-info"><h3 id="sc-article">0</h3><p>مقالات</p></div>
+        </div>
+        <div class="stat-card" onclick="filterCat('important',this)">
+          <div class="stat-ico important"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+          <div class="stat-info"><h3 id="sc-important">0</h3><p>مهمة</p></div>
+        </div>
+        <div class="stat-card" onclick="filterCat('favorite',this)">
+          <div class="stat-ico fav"><svg viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+          <div class="stat-info"><h3 id="sc-fav">0</h3><p>المفضلة</p></div>
+        </div>
+        <div class="stat-card" onclick="filterCat('other',this)">
+          <div class="stat-ico other"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+          <div class="stat-info"><h3 id="sc-other">0</h3><p>أخرى</p></div>
+        </div>
+      </div>
+
+      <!-- Controls Bar -->
+      <div class="controls-bar">
+        <div class="view-toggle">
+          <button class="vt-btn active" id="vt-grid" onclick="setView('grid')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          </button>
+          <button class="vt-btn" id="vt-list" onclick="setView('list')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          </button>
+        </div>
+        <select class="sort-select" id="sort-sel" onchange="renderLinks()">
+          <option value="newest">الأحدث أولاً</option>
+          <option value="oldest">الأقدم أولاً</option>
+          <option value="az">أبجدي أ-ي</option>
+          <option value="visits">الأكثر زيارةً</option>
+        </select>
+        <div class="results-count" id="results-count"></div>
+      </div>
+
+      <!-- Cards Container -->
+      <div id="cards-container" class="cards-grid"></div>
+    </main>
+  </div>
+
+  <!-- ══════ ADD/EDIT MODAL ══════ -->
+  <div class="modal-overlay" id="add-modal">
+    <div class="modal">
+      <div class="modal-head">
+        <h2 id="modal-title">إضافة رابط جديد</h2>
+        <button class="modal-close" onclick="closeAddModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-id">
+        <div class="form-group">
+          <label class="form-label">العنوان *</label>
+          <input class="form-input" id="f-title" type="text" placeholder="مثال: كورس React.js الكامل">
+        </div>
+        <div class="form-group">
+          <label class="form-label">الرابط / IP / العنوان *</label>
+          <input class="form-input" id="f-url" type="text" placeholder="https://example.com أو 192.168.1.1:8080">
+        </div>
+        <div class="form-group">
+          <label class="form-label">صورة الغلاف</label>
+          <div class="img-zone" id="img-zone">
+            <input type="file" accept="image/*" onchange="handleImg(event)" id="img-file">
+            <div class="img-zone-icon">🖼️</div>
+            <div class="img-zone-text">اضغط لرفع صورة أو <span>اسحب هنا</span></div>
+            <div style="font-size:11px;color:var(--fg3);margin-top:6px">PNG, JPG, WebP, GIF</div>
+          </div>
+          <div class="img-preview-wrap" id="img-preview" style="display:none">
+            <img id="preview-img" src="" alt="">
+            <button class="img-preview-remove" onclick="removeImg()">×</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">التصنيف *</label>
+            <select class="form-select" id="f-cat">
+              <option value="course">🎓 كورس تعليمي</option>
+              <option value="tool">🔧 أداة مهمة</option>
+              <option value="article">📄 مقال</option>
+              <option value="important">⭐ موقع مهم</option>
+              <option value="other">📁 أخرى</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">الوسوم (فاصلة)</label>
+            <input class="form-input" id="f-tags" type="text" placeholder="react, js, design">
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:16px">
+          <label class="form-label">وصف مختصر</label>
+          <textarea class="form-textarea" id="f-desc" placeholder="وصف سريع للرابط..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">ملاحظات خاصة</label>
+          <textarea class="form-textarea" id="f-notes" rows="2" placeholder="ملاحظاتك الخاصة لن تُعرض..." style="min-height:70px"></textarea>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-cancel" onclick="closeAddModal()">إلغاء</button>
+        <button class="btn-save" onclick="saveLink()">
+          <span id="save-btn-text">💾 حفظ الرابط</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ QR MODAL ══════ -->
+  <div class="modal-overlay" id="qr-modal">
+    <div class="modal" style="max-width:380px">
+      <div class="modal-head">
+        <h2>رمز QR</h2>
+        <button class="modal-close" onclick="closeModal('qr-modal')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="qr-container">
+          <div class="qr-url" id="qr-url-text"></div>
+          <div class="qr-box"><canvas id="qr-canvas"></canvas></div>
+          <button class="btn-save" style="margin-top:20px;width:100%" onclick="downloadQR()">⬇️ تحميل QR</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ SETTINGS MODAL ══════ -->
+  <div class="modal-overlay" id="settings-modal">
+    <div class="modal" style="max-width:500px">
+      <div class="modal-head">
+        <h2>⚙️ الإعدادات</h2>
+        <button class="modal-close" onclick="closeModal('settings-modal')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-section">
+          <div class="settings-section-title">البيانات</div>
+          <button class="settings-btn" onclick="exportData()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            تصدير إلى JSON
+          </button>
+          <label style="cursor:pointer;display:block">
+            <input type="file" accept=".json" onchange="importData(event)" style="display:none">
+            <div class="settings-btn" style="cursor:pointer;margin:0">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              استيراد من JSON
+            </div>
+          </label>
+        </div>
+        <div class="settings-section">
+          <div class="settings-section-title">كلمة المرور</div>
+          <div class="form-group">
+            <label class="form-label">كلمة المرور الجديدة</label>
+            <input class="form-input" id="set-pw" type="password" placeholder="كلمة مرور جديدة...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">تأكيد كلمة المرور</label>
+            <input class="form-input" id="set-pw2" type="password" placeholder="أعد الإدخال...">
+          </div>
+          <button class="settings-btn" onclick="changePw()">🔑 تغيير كلمة المرور</button>
+        </div>
+        <div class="settings-section">
+          <div class="settings-section-title">خطر</div>
+          <button class="settings-btn danger" onclick="clearAll()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            مسح جميع البيانات
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <div class="t-dot"></div>
+    <span id="toast-msg"></span>
+  </div>
+
+  <!-- Script -->
+  <script src="script.js" defer></script>
+</body>
+</html>
