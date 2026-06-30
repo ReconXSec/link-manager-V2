@@ -308,6 +308,7 @@
 
   <!-- Firebase Module -->
   <script type="module">
+    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app-check.js";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
     import { getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
@@ -322,7 +323,11 @@
       measurementId: "G-WWVV92JBJW"
     };
 
-    const app = initializeApp(firebaseConfig);
+    const app = initializeApp(firebaseConfig); 
+    const appCheck = initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider('6LfGVj4tAAAAAAcktKeUGSMgNzSN4_o2LgJ1rBe1T'),
+  isTokenAutoRefreshEnabled: true
+});
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
     const db = getFirestore(app);
