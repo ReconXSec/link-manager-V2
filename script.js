@@ -209,6 +209,10 @@ function enterApp() {
 }
 
 function doLogout() {
+  // تسجيل الخروج من Firebase إذا كان المستخدم مسجلاً
+  if (window.auth && window.signOut) {
+    window.signOut(window.auth).catch(() => {});
+  }
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-page').style.display = 'flex';
   document.getElementById('pw-inp').value = '';
