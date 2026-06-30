@@ -37,7 +37,6 @@ class BgParticle {
 
 for (let i = 0; i < 120; i++) particles.push(new BgParticle());
 
-// Draw connecting lines
 function drawConnections() {
   for (let i = 0; i < particles.length; i++) {
     for (let j = i+1; j < particles.length; j++) {
@@ -87,7 +86,6 @@ function drawCardCanvas(canvas, cat) {
   grad.addColorStop(1, c2 + '22');
   ctx.fillStyle = grad; ctx.fillRect(0,0,w,h);
 
-  // Grid
   ctx.strokeStyle = 'rgba(255,255,255,.04)'; ctx.lineWidth = 1;
   for (let x = 0; x < w; x += 28) {
     ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke();
@@ -96,7 +94,6 @@ function drawCardCanvas(canvas, cat) {
     ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke();
   }
 
-  // Glowing circles
   const rg = ctx.createRadialGradient(w*.3,h*.4,0,w*.3,h*.4,w*.5);
   rg.addColorStop(0, c1 + '55'); rg.addColorStop(1,'transparent');
   ctx.fillStyle = rg; ctx.fillRect(0,0,w,h);
@@ -114,6 +111,8 @@ let currentFilter = 'all';
 let currentView = 'grid';
 let editId = null;
 let coverImg = null;
+let currentUserId = null;
+let unsubscribe = null;
 
 const LS = {
   get: k => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch { return null; } },
@@ -127,8 +126,70 @@ function loadAll() {
   links = LS.get('nx_links') || [];
 }
 
-function saveLinks() {
+function saveLinksLocal() {
   LS.set('nx_links', links);
+}
+
+// ══════════════════════════════════
+// FIRESTORE SYNC
+// ══════════════════════════════════
+window.loadLinksFromFirestore = function(userId) {
+  currentUserId = userId;
+  if (unsubscribe) unsubscribe();
+  
+  const db = window.db;
+  const colRef = window.collection(db, 'users', userId, 'links');
+  
+  // استماع فوري للتغييرات
+  unsubscribe = window.onSnapshot(colRef, (snapshot) => {
+    const newLinks = [];
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      newLinks.push({ ...data, id: doc.id });
+    });
+    links = newLinks;
+    saveLinksLocal(); // نسخة احتياطية محلية
+    renderLinks();
+    showToast('🔄 تم تحديث البيانات من السحاب', 'info');
+  }, (error) => {
+    console.error('Firestore error:', error);
+    showToast('⚠️ خطأ في تحميل البيانات من السحاب', 'error');
+  });
+};
+
+async function syncToFirestore(link) {
+  if (!currentUserId) return;
+  const db = window.db;
+  const docRef = window.doc(db, 'users', currentUserId, 'links', link.id);
+  try {
+    await window.setDoc(docRef, link);
+  } catch (e) {
+    console.error('Save to Firestore failed:', e);
+    showToast('❌ فشل الحفظ في السحاب', 'error');
+  }
+}
+
+async function deleteFromFirestore(id) {
+  if (!currentUserId) return;
+  const db = window.db;
+  const docRef = window.doc(db, 'users', currentUserId, 'links', id);
+  try {
+    await window.deleteDoc(docRef);
+  } catch (e) {
+    console.error('Delete from Firestore failed:', e);
+    showToast('❌ فشل الحذف من السحاب', 'error');
+  }
+}
+
+// تعديل saveLinks لتحديث السحاب
+function saveLinks() {
+  saveLinksLocal();
+  // تحديث كل رابط في السحاب (يمكن تحسينه بإرسال التغييرات فقط)
+  if (currentUserId) {
+    links.forEach(link => {
+      syncToFirestore(link);
+    });
+  }
 }
 
 // ══════════════════════════════════
@@ -205,14 +266,18 @@ function showErr(el, msg) { el.textContent = msg; el.style.display = 'block'; }
 function enterApp() {
   document.getElementById('login-page').style.display = 'none';
   document.getElementById('app').style.display = 'block';
+  // إذا كان المستخدم مسجلاً في Firebase، سيتم تحميل البيانات تلقائياً
   renderLinks();
 }
 
 function doLogout() {
-  // تسجيل الخروج من Firebase إذا كان المستخدم مسجلاً
+  if (unsubscribe) { unsubscribe(); unsubscribe = null; }
   if (window.auth && window.signOut) {
     window.signOut(window.auth).catch(() => {});
   }
+  currentUserId = null;
+  links = [];
+  saveLinksLocal();
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-page').style.display = 'flex';
   document.getElementById('pw-inp').value = '';
@@ -225,28 +290,24 @@ document.addEventListener('keydown', e => {
 });
 
 // ══════════════════════════════════
-// RENDER
+// RENDER (نفس الكود السابق مع تعديل طفيف)
 // ══════════════════════════════════
 function getDisplayLinks() {
   const q = document.getElementById('search-inp')?.value.toLowerCase().trim();
   let list = [...links];
-
   if (currentFilter === 'favorite') list = list.filter(l => l.fav);
   else if (currentFilter !== 'all') list = list.filter(l => l.cat === currentFilter);
-
   if (q) list = list.filter(l =>
     l.title.toLowerCase().includes(q) ||
     l.url.toLowerCase().includes(q) ||
     (l.desc||'').toLowerCase().includes(q) ||
     (l.tags||[]).some(t => t.toLowerCase().includes(q))
   );
-
   const sort = document.getElementById('sort-sel')?.value || 'newest';
   if (sort === 'newest') list.sort((a,b) => b.ts - a.ts);
   else if (sort === 'oldest') list.sort((a,b) => a.ts - b.ts);
   else if (sort === 'az') list.sort((a,b) => a.title.localeCompare(b.title, 'ar'));
   else if (sort === 'visits') list.sort((a,b) => (b.visits||0) - (a.visits||0));
-
   return list;
 }
 
@@ -271,11 +332,9 @@ function renderLinks() {
   const list = getDisplayLinks();
   const container = document.getElementById('cards-container');
   container.className = currentView === 'list' ? 'cards-list' : 'cards-grid';
-
   document.getElementById('results-count').innerHTML = list.length
     ? `عرض <span>${list.length}</span> من ${links.length}`
     : '';
-
   if (!list.length) {
     container.innerHTML = `
     <div class="empty-state">
@@ -288,9 +347,7 @@ function renderLinks() {
     </div>`;
     return;
   }
-
   const listMode = currentView === 'list' ? 'list-mode' : '';
-
   container.innerHTML = list.map((l, i) => `
   <div class="link-card ${l.cat} ${listMode}" style="animation-delay:${i*.04}s" id="card-${l.id}">
     <div class="card-img">
@@ -341,8 +398,6 @@ function renderLinks() {
       </div>
     </div>
   </div>`).join('');
-
-  // Draw placeholders after DOM update
   requestAnimationFrame(() => {
     list.forEach(l => {
       if (!l.image) {
@@ -358,7 +413,7 @@ function fmtDate(ts) {
 }
 
 // ══════════════════════════════════
-// FILTER & SORT
+// FILTER & SORT (نفسه)
 // ══════════════════════════════════
 function filterCat(cat, el) {
   currentFilter = cat;
@@ -366,9 +421,7 @@ function filterCat(cat, el) {
   if (el) el.classList.add('active-filter');
   renderLinks();
 }
-
 function handleSearch() { renderLinks(); }
-
 function setView(v) {
   currentView = v;
   document.getElementById('vt-grid').classList.toggle('active', v==='grid');
@@ -377,7 +430,7 @@ function setView(v) {
 }
 
 // ══════════════════════════════════
-// CRUD
+// CRUD (مع تعديل لحفظ Firestore)
 // ══════════════════════════════════
 function visitLink(id, url, e) {
   if (e) e.stopPropagation();
@@ -401,16 +454,21 @@ function copyUrl(url, e) {
   navigator.clipboard.writeText(url).then(() => showToast('📋 تم نسخ الرابط', 'success'));
 }
 
-function deleteLink(id, e) {
+async function deleteLink(id, e) {
   if (e) e.stopPropagation();
   if (!confirm('هل أنت متأكد من حذف هذا الرابط؟')) return;
+  // حذف من Firestore
+  if (currentUserId) {
+    await deleteFromFirestore(id);
+  }
   links = links.filter(l=>l.id!==id);
-  saveLinks(); renderLinks();
+  saveLinksLocal();
+  renderLinks();
   showToast('🗑️ تم الحذف', 'error');
 }
 
 // ══════════════════════════════════
-// ADD / EDIT MODAL
+// ADD / EDIT MODAL (نفسه مع تعديل saveLink)
 // ══════════════════════════════════
 function openAddModal() {
   editId = null; coverImg = null;
@@ -471,7 +529,7 @@ function removeImg() {
   document.getElementById('img-file').value='';
 }
 
-function saveLink() {
+async function saveLink() {
   const title = document.getElementById('f-title').value.trim();
   const url = document.getElementById('f-url').value.trim();
   if (!title || !url) { showToast('⚠️ العنوان والرابط مطلوبان', 'error'); return; }
@@ -488,24 +546,33 @@ function saveLink() {
         image: coverImg !== null ? coverImg : links[idx].image,
         updated: Date.now()
       };
+      if (currentUserId) {
+        await syncToFirestore(links[idx]);
+      }
     }
     showToast('✅ تم تحديث الرابط', 'success');
   } else {
-    links.unshift({
+    const newLink = {
       id: Date.now().toString(36) + Math.random().toString(36).slice(2,5),
       title, url,
       cat: document.getElementById('f-cat').value,
       tags, desc: document.getElementById('f-desc').value.trim(),
       notes: document.getElementById('f-notes').value.trim(),
       image: coverImg, fav:false, visits:0, ts:Date.now()
-    });
+    };
+    links.unshift(newLink);
+    if (currentUserId) {
+      await syncToFirestore(newLink);
+    }
     showToast('🚀 تم إضافة الرابط', 'success');
   }
-  saveLinks(); renderLinks(); closeAddModal();
+  saveLinksLocal();
+  renderLinks();
+  closeAddModal();
 }
 
 // ══════════════════════════════════
-// QR CODE
+// QR CODE (نفسه)
 // ══════════════════════════════════
 function openQR(url, e) {
   if (e) e.stopPropagation();
@@ -543,7 +610,7 @@ function downloadQR() {
 }
 
 // ══════════════════════════════════
-// SETTINGS
+// SETTINGS (نفسه)
 // ══════════════════════════════════
 function openSettingsModal() {
   document.getElementById('settings-modal').style.display='flex';
@@ -580,7 +647,12 @@ function importData(e) {
           const ids = new Set(links.map(l=>l.id));
           links = [...links, ...data.links.filter(l=>!ids.has(l.id))];
         } else { links = data.links; }
-        saveLinks(); renderLinks();
+        saveLinksLocal();
+        // إذا كان المستخدم مسجلاً، نزامن جميع الروابط مع السحاب
+        if (currentUserId) {
+          links.forEach(l => syncToFirestore(l));
+        }
+        renderLinks();
         showToast(`✅ تم استيراد ${data.links.length} رابط`,'success');
       }
     } catch { showToast('❌ ملف غير صالح','error'); }
@@ -588,10 +660,18 @@ function importData(e) {
   r.readAsText(file);
 }
 
-function clearAll() {
+async function clearAll() {
   if (!confirm('سيتم حذف جميع الروابط نهائياً!')) return;
   if (!confirm('هذا الإجراء لا يمكن التراجع عنه. متأكد؟')) return;
-  links = []; saveLinks(); renderLinks();
+  if (currentUserId) {
+    // حذف كل رابط من Firestore
+    for (const l of links) {
+      await deleteFromFirestore(l.id);
+    }
+  }
+  links = [];
+  saveLinksLocal();
+  renderLinks();
   showToast('🗑️ تم مسح جميع البيانات','error');
 }
 
@@ -618,13 +698,11 @@ document.addEventListener('DOMContentLoaded', () => {
   loadAll();
   initAuth();
 
-  // Greeting
   const hr = new Date().getHours();
   const g = hr < 12 ? 'صباح الخير ☀️' : hr < 18 ? 'مساء النور 🌤️' : 'مساء الخير 🌙';
   const heroEl = document.getElementById('hero-greeting');
   if (heroEl) heroEl.textContent = g;
 
-  // Close modal on overlay click
   document.querySelectorAll('.modal-overlay').forEach(o => {
     o.addEventListener('click', e => {
       if (e.target === o) o.style.display='none';
