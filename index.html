@@ -310,6 +310,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDBg0nUi77lCqaWMeMEaa_2fqLZqI3Gx64",
@@ -324,10 +325,20 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
+    const db = getFirestore(app);
 
-    // Make auth and signOut available globally
+    // Make auth, db, signOut available globally
     window.auth = auth;
+    window.db = db;
     window.signOut = signOut;
+    window.onSnapshot = onSnapshot;
+    window.collection = collection;
+    window.doc = doc;
+    window.setDoc = setDoc;
+    window.deleteDoc = deleteDoc;
+    window.updateDoc = updateDoc;
+    window.query = query;
+    window.where = where;
 
     // تسجيل الدخول ب Google
     window.signInWithGoogle = function() {
@@ -350,11 +361,13 @@
     onAuthStateChanged(auth, (user) => {
       const userNameEl = document.getElementById('user-name');
       if (user) {
-        // عرض اسم المستخدم
         if (userNameEl) {
           userNameEl.textContent = user.displayName || 'مستخدم';
         }
-        // إذا كانت صفحة الدخول ظاهرة ولم يكن التطبيق ظاهراً، ندخل التطبيق
+        // تحميل البيانات من Firestore (سيتم استدعاؤها من script.js)
+        if (typeof loadLinksFromFirestore === 'function') {
+          loadLinksFromFirestore(user.uid);
+        }
         const loginPage = document.getElementById('login-page');
         const appEl = document.getElementById('app');
         if (loginPage && loginPage.style.display !== 'none' && appEl && appEl.style.display === 'none') {
@@ -364,11 +377,11 @@
         }
       } else {
         if (userNameEl) userNameEl.textContent = '';
-        // إذا كان التطبيق ظاهراً ولم يكن المستخدم مسجلاً، نعود لصفحة الدخول
+        // إذا كان التطبيق ظاهراً وليس هناك مستخدم، نعود لصفحة الدخول
         const appEl = document.getElementById('app');
         if (appEl && appEl.style.display !== 'none') {
           if (typeof doLogout === 'function') {
-            doLogout(); // هذه الدالة ستخفي التطبيق وتظهر الدخول
+            doLogout();
           }
         }
       }
