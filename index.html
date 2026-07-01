@@ -35,11 +35,12 @@
               <span class="field-icon">🔒</span>
             </div>
           </div>
-          <button class="login-btn" id="login-btn" onclick="doLogin()">
+          <!-- زر الدخول بكلمة المرور (سنضيف له id) -->
+          <button class="login-btn" id="login-btn">
             <span id="login-btn-text">دخول ←</span>
           </button>
-          <!-- زر Google -->
-          <button class="login-btn google-btn" onclick="signInWithGoogle()" style="margin-top:12px; background: #4285F4; box-shadow: 0 8px 32px rgba(66,133,244,0.4);">
+          <!-- زر Google (أزلنا onclick) -->
+          <button class="login-btn google-btn" id="google-signin-btn" style="margin-top:12px; background: #4285F4; box-shadow: 0 8px 32px rgba(66,133,244,0.4);">
             <span>🔵 تسجيل الدخول ب Google</span>
           </button>
           <div class="attempts-bar" id="attempts-bar"></div>
@@ -193,40 +194,24 @@
     // 🚫 تم تعطيل App Check مؤقتاً لتجنب أخطاء reCAPTCHA
     // import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app-check.js";
 
-    // ✅ إعدادات Firebase الجديدة (من الكود المطلوب)
     const firebaseConfig = {
       apiKey: "AIzaSyDBg0nUi77lCqaWMeMEaa_2fqLZqI3Gx64",
       authDomain: "link-manger-d246a.firebaseapp.com",
       projectId: "link-manger-d246a",
       storageBucket: "link-manger-d246a.firebasestorage.app",
       messagingSenderId: "536882965120",
-      appId: "1:536882965120:web:74553860f3dc6cd8829465",   // تم التحديث
-      measurementId: "G-ELG81T6V6X"                         // تم التحديث
+      appId: "1:536882965120:web:74553860f3dc6cd8829465",
+      measurementId: "G-ELG81T6V6X"
     };
 
-    // تهيئة تطبيق Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
     const db = getFirestore(app);
 
-    // ❌ تم إلغاء تفعيل App Check - يمكن إعادة تفعيله لاحقاً بعد حل مشكلة reCAPTCHA
-    // try {
-    //   const appCheck = initializeAppCheck(app, {
-    //     provider: new ReCaptchaV3Provider('6LfGVj4tAAAAAAcktKeUGSMgNzSN4_o2LgJ1rBe1T'),
-    //     isTokenAutoRefreshEnabled: true
-    //   });
-    //   console.log("AppCheck initialized successfully with reCAPTCHA v3");
-    // } catch(e) { 
-    //   console.warn("AppCheck Initialization Error:", e); 
-    // }
+    provider.setCustomParameters({ prompt: 'select_account' });
 
-    // إعداد موفر جوجل للسماح بالنوافذ المنبثقة وتجنب أخطاء COOP
-    provider.setCustomParameters({
-      prompt: 'select_account'
-    });
-
-    // تصدير الدوال والـ Instances للمجال العالمي
+    // جعل الكائنات متاحة لـ script.js إن احتاجها
     window.auth = auth;
     window.db = db;
     window.signOut = signOut;
@@ -239,66 +224,91 @@
     window.query = query;
     window.where = where;
 
-    // دالة تسجيل الدخول عبر Google
-    window.signInWithGoogle = function() {
+    // دالة تسجيل الدخول ب Google (سيتم استدعاؤها من مستمع الحدث)
+    function signInWithGoogle() {
       signInWithPopup(auth, provider)
         .then((result) => {
-          console.log("تم تسجيل الدخول بنجاح:", result.user.displayName);
-          if (typeof enterApp === 'function') enterApp();
+          console.log("✅ تم تسجيل الدخول بنجاح:", result.user.displayName);
+          // بعد تسجيل الدخول، سنترك onAuthStateChanged يتولى الباقي
         })
         .catch((error) => {
-          console.error("خطأ في تسجيل الدخول:", error.code, error.message);
-          if (typeof showToast === 'function') showToast('❌ فشل تسجيل الدخول: ' + error.message, 'error');
+          console.error("❌ خطأ في تسجيل الدخول:", error.code, error.message);
+          // محاولة عرض رسالة خطأ عبر toast إذا كانت الدالة موجودة
+          if (typeof showToast === 'function') {
+            showToast('❌ فشل تسجيل الدخول: ' + error.message, 'error');
+          } else {
+            alert('فشل تسجيل الدخول: ' + error.message);
+          }
         });
-    };
-
-    // مراقبة حالة المصادقة (Auth State) وتحديث الـ UI بناءً عليها
-// ══════════════════════════════════
-// مراقبة حالة المصادقة (Auth State) - نسخة معدلة تعمل مباشرة
-// ══════════════════════════════════
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    console.log("✅ المستخدم مسجل الدخول:", user.displayName, user.uid);
-
-    // 1. تحديث اسم المستخدم في الأعلى (إن وجد)
-    const userNameEl = document.getElementById('user-name');
-    if (userNameEl) {
-      userNameEl.textContent = user.displayName || 'مستخدم';
     }
 
-    // 2. إظهار التطبيق وإخفاء صفحة الدخول مباشرة (بدون انتظار دوال أخرى)
-    const loginPage = document.getElementById('login-page');
-    const appEl = document.getElementById('app');
-    if (loginPage) loginPage.style.display = 'none';
-    if (appEl) appEl.style.display = 'block';
-
-    // 3. محاولة تحميل البيانات من Firestore (إذا كانت الدوال موجودة في script.js)
-    if (typeof loadLinksFromFirestore === 'function') {
-      loadLinksFromFirestore(user.uid);
-    } else {
-      // إذا لم توجد الدالة، نعرض الروابط المخزنة محلياً فقط
-      console.warn("⚠️ loadLinksFromFirestore غير معرفة، سيتم عرض الروابط المحلية فقط.");
-      if (typeof renderLinks === 'function') {
-        renderLinks();
-      } else {
-        console.error("❌ renderLinks غير معرفة أيضاً!");
+    // ربط الأزرار بالأحداث بعد تحميل الصفحة
+    document.addEventListener('DOMContentLoaded', () => {
+      // زر Google
+      const googleBtn = document.getElementById('google-signin-btn');
+      if (googleBtn) {
+        googleBtn.addEventListener('click', signInWithGoogle);
       }
-    }
 
-  } else {
-    // إذا سجل الخروج
-    console.log("🚫 لا يوجد مستخدم مسجل");
-    const appEl = document.getElementById('app');
-    const loginPage = document.getElementById('login-page');
-    if (appEl) appEl.style.display = 'none';
-    if (loginPage) loginPage.style.display = 'flex';
-    
-    // مسح اسم المستخدم
-    const userNameEl = document.getElementById('user-name');
-    if (userNameEl) userNameEl.textContent = '';
-  }
-});
+      // زر الدخول بكلمة المرور
+      const loginBtn = document.getElementById('login-btn');
+      if (loginBtn) {
+        loginBtn.addEventListener('click', () => {
+          if (typeof doLogin === 'function') {
+            doLogin();
+          } else {
+            console.warn('doLogin غير معرفة، تأكد من تحميل script.js');
+          }
+        });
+      }
     });
+
+    // مراقبة حالة المصادقة
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log("✅ المستخدم مسجل الدخول:", user.displayName, user.uid);
+
+        // تحديث اسم المستخدم في الواجهة
+        const userNameEl = document.getElementById('user-name');
+        if (userNameEl) {
+          userNameEl.textContent = user.displayName || 'مستخدم';
+        }
+
+        // إظهار التطبيق وإخفاء صفحة الدخول
+        const loginPage = document.getElementById('login-page');
+        const appEl = document.getElementById('app');
+        if (loginPage) loginPage.style.display = 'none';
+        if (appEl) appEl.style.display = 'block';
+
+        // محاولة تحميل البيانات من Firestore (إذا كانت الدوال موجودة في script.js)
+        if (typeof loadLinksFromFirestore === 'function') {
+          loadLinksFromFirestore(user.uid);
+        } else {
+          console.warn("⚠️ loadLinksFromFirestore غير معرفة، سيتم عرض الروابط المحلية فقط.");
+          if (typeof renderLinks === 'function') {
+            renderLinks();
+          } else {
+            console.error("❌ renderLinks غير معرفة أيضاً!");
+          }
+        }
+
+      } else {
+        console.log("🚫 لا يوجد مستخدم مسجل");
+        // إخفاء التطبيق وإظهار صفحة الدخول
+        const appEl = document.getElementById('app');
+        const loginPage = document.getElementById('login-page');
+        if (appEl) appEl.style.display = 'none';
+        if (loginPage) loginPage.style.display = 'flex';
+
+        // مسح اسم المستخدم
+        const userNameEl = document.getElementById('user-name');
+        if (userNameEl) userNameEl.textContent = '';
+      }
+    });
+
+    // جعل signInWithGoogle متاحة عالمياً (احتياطاً)
+    window.signInWithGoogle = signInWithGoogle;
+
   </script>
 </body>
 </html>
