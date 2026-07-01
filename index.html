@@ -186,12 +186,13 @@
   <div class="toast" id="toast"><div class="t-dot"></div><span id="toast-msg"></span></div>
 
   <!-- ══════════ Firebase Module ══════════ -->
-  <script type="module">
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
     import { getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
     import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app-check.js";
 
+    // إعدادات Firebase الخاصة بمشروعك
     const firebaseConfig = {
       apiKey: "AIzaSyDBg0nUi77lCqaWMeMEaa_2fqLZqI3Gx64",
       authDomain: "link-manger-d246a.firebaseapp.com",
@@ -202,88 +203,29 @@
       measurementId: "G-WWVV92JBJW"
     };
 
+    // تهيئة تطبيق Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
     const db = getFirestore(app);
 
+    // تفعيل وتثبيت الحماية App Check باستخدام الـ Site Key الخاص بك
     try {
       const appCheck = initializeAppCheck(app, {
         provider: new ReCaptchaV3Provider('6LfGVj4tAAAAAAcktKeUGSMgNzSN4_o2LgJ1rBe1T'),
         isTokenAutoRefreshEnabled: true
       });
-    } catch(e) { console.warn("AppCheck Error:", e); }
-
-    window.auth = auth;
-    window.db = db;
-    window.signOut = signOut;
-    window.onSnapshot = onSnapshot;
-    window.collection = collection;
-    window.doc = doc;
-    window.setDoc = setDoc;
-    window.deleteDoc = deleteDoc;
-    window.updateDoc = updateDoc;
-    window.query = query;
-    window.where = where;
-
-    window.signInWithGoogle = function() {
-      signInWithPopup(auth, provider)
-        .then((result) => {
-          if (typeof enterApp === 'function') enterApp();
-        })
-        .catch((error) => {
-          console.error(error);
-          if (typeof showToast === 'function') showToast('❌ فشل تسجيل الدخول ب Google', 'error');
-        });
-    };
-
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        if (typeof updateProfileUI === 'function') updateProfileUI(user);
-        if (typeof loadLinksFromFirestore === 'function') loadLinksFromFirestore(user.uid);
-        const loginPage = document.getElementById('login-page');
-        const appEl = document.getElementById('app');
-        if (loginPage && loginPage.style.display !== 'none' && appEl && appEl.style.display === 'none') {
-          if (typeof enterApp === 'function') enterApp();
-        }
-      } else {
-        if (typeof updateProfileUI === 'function') updateProfileUI(null);
-        const appEl = document.getElementById('app');
-        if (appEl && appEl.style.display !== 'none') {
-          if (typeof doLogout === 'function') doLogout(true);
-        }
-      }
-    });
-  </script>
-
-  <!-- ══════════ App Logic Script ══════════ -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-    // تم إزالة استدعاء App Check نهائياً لحل المشكلة
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDBg0nUi77lCqaWMeMEaa_2fqLZqI3Gx64",
-      authDomain: "link-manger-d246a.firebaseapp.com",
-      projectId: "link-manger-d246a",
-      storageBucket: "link-manger-d246a.firebasestorage.app",
-      messagingSenderId: "536882965120",
-      appId: "1:536882965120:web:1ba31c08240530f3829465",
-      measurementId: "G-WWVV92JBJW"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
-    const db = getFirestore(app);
+      console.log("AppCheck initialized successfully with reCAPTCHA v3");
+    } catch(e) { 
+      console.warn("AppCheck Initialization Error:", e); 
+    }
 
     // إعداد موفر جوجل للسماح بالنوافذ المنبثقة وتجنب أخطاء COOP
     provider.setCustomParameters({
       prompt: 'select_account'
     });
 
-    // جعل الدوال متاحة عالمياً
+    // تصدير الدوال والـ Instances للمجال العالمي لتتعرف عليها بقية عناصر الـ HTML
     window.auth = auth;
     window.db = db;
     window.signOut = signOut;
@@ -296,7 +238,7 @@
     window.query = query;
     window.where = where;
 
-    // تسجيل الدخول ب Google
+    // دالة تسجيل الدخول عبر Google
     window.signInWithGoogle = function() {
       signInWithPopup(auth, provider)
         .then((result) => {
@@ -309,10 +251,10 @@
         });
     };
 
-    // مراقبة حالة المصادقة
+    // مراقبة حالة المصادقة (Auth State) وتحديث الـ UI بناءً عليها
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log("المستخدم مسجل الدخول:", user.uid);
+        console.log("المستخدم مسجل الدخول حالياً بالـ ID:", user.uid);
         if (typeof updateProfileUI === 'function') updateProfileUI(user);
         if (typeof loadLinksFromFirestore === 'function') loadLinksFromFirestore(user.uid);
         
@@ -322,7 +264,7 @@
           if (typeof enterApp === 'function') enterApp();
         }
       } else {
-        console.log("لا يوجد مستخدم مسجل الدخول");
+        console.log("لا يوجد مستخدم مسجل الدخول حالياً");
         if (typeof updateProfileUI === 'function') updateProfileUI(null);
         const appEl = document.getElementById('app');
         if (appEl && appEl.style.display !== 'none') {
