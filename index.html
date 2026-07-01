@@ -186,21 +186,22 @@
   <div class="toast" id="toast"><div class="t-dot"></div><span id="toast-msg"></span></div>
 
   <!-- ══════════ Firebase Module ══════════ -->
-<script type="module">
+  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
     import { getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app-check.js";
+    // 🚫 تم تعطيل App Check مؤقتاً لتجنب أخطاء reCAPTCHA
+    // import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app-check.js";
 
-    // إعدادات Firebase الخاصة بمشروعك
+    // ✅ إعدادات Firebase الجديدة (من الكود المطلوب)
     const firebaseConfig = {
       apiKey: "AIzaSyDBg0nUi77lCqaWMeMEaa_2fqLZqI3Gx64",
       authDomain: "link-manger-d246a.firebaseapp.com",
       projectId: "link-manger-d246a",
       storageBucket: "link-manger-d246a.firebasestorage.app",
       messagingSenderId: "536882965120",
-      appId: "1:536882965120:web:1ba31c08240530f3829465",
-      measurementId: "G-WWVV92JBJW"
+      appId: "1:536882965120:web:74553860f3dc6cd8829465",   // تم التحديث
+      measurementId: "G-ELG81T6V6X"                         // تم التحديث
     };
 
     // تهيئة تطبيق Firebase
@@ -209,23 +210,23 @@
     const provider = new GoogleAuthProvider();
     const db = getFirestore(app);
 
-    // تفعيل وتثبيت الحماية App Check باستخدام الـ Site Key الخاص بك
-    try {
-      const appCheck = initializeAppCheck(app, {
-        provider: new ReCaptchaV3Provider('6LfGVj4tAAAAAAcktKeUGSMgNzSN4_o2LgJ1rBe1T'),
-        isTokenAutoRefreshEnabled: true
-      });
-      console.log("AppCheck initialized successfully with reCAPTCHA v3");
-    } catch(e) { 
-      console.warn("AppCheck Initialization Error:", e); 
-    }
+    // ❌ تم إلغاء تفعيل App Check - يمكن إعادة تفعيله لاحقاً بعد حل مشكلة reCAPTCHA
+    // try {
+    //   const appCheck = initializeAppCheck(app, {
+    //     provider: new ReCaptchaV3Provider('6LfGVj4tAAAAAAcktKeUGSMgNzSN4_o2LgJ1rBe1T'),
+    //     isTokenAutoRefreshEnabled: true
+    //   });
+    //   console.log("AppCheck initialized successfully with reCAPTCHA v3");
+    // } catch(e) { 
+    //   console.warn("AppCheck Initialization Error:", e); 
+    // }
 
     // إعداد موفر جوجل للسماح بالنوافذ المنبثقة وتجنب أخطاء COOP
     provider.setCustomParameters({
       prompt: 'select_account'
     });
 
-    // تصدير الدوال والـ Instances للمجال العالمي لتتعرف عليها بقية عناصر الـ HTML
+    // تصدير الدوال والـ Instances للمجال العالمي
     window.auth = auth;
     window.db = db;
     window.signOut = signOut;
