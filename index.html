@@ -253,25 +253,51 @@
     };
 
     // مراقبة حالة المصادقة (Auth State) وتحديث الـ UI بناءً عليها
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        console.log("المستخدم مسجل الدخول حالياً بالـ ID:", user.uid);
-        if (typeof updateProfileUI === 'function') updateProfileUI(user);
-        if (typeof loadLinksFromFirestore === 'function') loadLinksFromFirestore(user.uid);
-        
-        const loginPage = document.getElementById('login-page');
-        const appEl = document.getElementById('app');
-        if (loginPage && loginPage.style.display !== 'none' && appEl && appEl.style.display === 'none') {
-          if (typeof enterApp === 'function') enterApp();
-        }
+// ══════════════════════════════════
+// مراقبة حالة المصادقة (Auth State) - نسخة معدلة تعمل مباشرة
+// ══════════════════════════════════
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    console.log("✅ المستخدم مسجل الدخول:", user.displayName, user.uid);
+
+    // 1. تحديث اسم المستخدم في الأعلى (إن وجد)
+    const userNameEl = document.getElementById('user-name');
+    if (userNameEl) {
+      userNameEl.textContent = user.displayName || 'مستخدم';
+    }
+
+    // 2. إظهار التطبيق وإخفاء صفحة الدخول مباشرة (بدون انتظار دوال أخرى)
+    const loginPage = document.getElementById('login-page');
+    const appEl = document.getElementById('app');
+    if (loginPage) loginPage.style.display = 'none';
+    if (appEl) appEl.style.display = 'block';
+
+    // 3. محاولة تحميل البيانات من Firestore (إذا كانت الدوال موجودة في script.js)
+    if (typeof loadLinksFromFirestore === 'function') {
+      loadLinksFromFirestore(user.uid);
+    } else {
+      // إذا لم توجد الدالة، نعرض الروابط المخزنة محلياً فقط
+      console.warn("⚠️ loadLinksFromFirestore غير معرفة، سيتم عرض الروابط المحلية فقط.");
+      if (typeof renderLinks === 'function') {
+        renderLinks();
       } else {
-        console.log("لا يوجد مستخدم مسجل الدخول حالياً");
-        if (typeof updateProfileUI === 'function') updateProfileUI(null);
-        const appEl = document.getElementById('app');
-        if (appEl && appEl.style.display !== 'none') {
-          if (typeof doLogout === 'function') doLogout(true);
-        }
+        console.error("❌ renderLinks غير معرفة أيضاً!");
       }
+    }
+
+  } else {
+    // إذا سجل الخروج
+    console.log("🚫 لا يوجد مستخدم مسجل");
+    const appEl = document.getElementById('app');
+    const loginPage = document.getElementById('login-page');
+    if (appEl) appEl.style.display = 'none';
+    if (loginPage) loginPage.style.display = 'flex';
+    
+    // مسح اسم المستخدم
+    const userNameEl = document.getElementById('user-name');
+    if (userNameEl) userNameEl.textContent = '';
+  }
+});
     });
   </script>
 </body>
